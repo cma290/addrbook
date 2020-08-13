@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import './App.css';
 
-const locale = {
+const Locales = {
   en: {
     id: 'ID',
     name: 'Name',
@@ -21,13 +21,13 @@ const locale = {
 }
 
 const colDef = [
-  { title: 'id' },
-  { title: 'name' },
+  { key: 'id' },
+  { key: 'name' },
   {
-    title: 'phone',
+    key: 'phone',
     subcol: [
-      { title: 'office' },
-      { title: 'cell' },
+      { key: 'officephone' },
+      { key: 'cellphone' },
     ]
   },
 ];
@@ -37,13 +37,14 @@ class App extends Component {
     records: [],
     lan: 'zh',
   }
-  inc(v) {
+  toggleLan=()=>{
     this.setState({
-      target: this.state.target + v
+        lan: this.state.lan === 'zh'? 'en' : 'zh'
     })
   }
 
   renderCols(coldef) {
+    const locale = Locales[this.state.lan];
     return (
       <div className='cols'>
         { coldef.map(col => {
@@ -51,14 +52,14 @@ class App extends Component {
             return (
               <div>
                 <div className="col">
-                  { col.title }
+                  { locale[col.key] }
                 </div>
                 { this.renderCols(col.subcol) }
               </div>
             )
           } else {
             return (
-              <div className='col'>{ col.title }</div>
+              <div className='col'>{ locale[col.key] }</div>
             )
           }
         }) }
@@ -69,6 +70,7 @@ class App extends Component {
     return (
       <div className='bookwrap'>
         { this.renderCols(colDef) }
+        <button onClick={this.toggleLan}>中/EN</button>
       </div>
     )
   }
