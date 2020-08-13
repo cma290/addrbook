@@ -17,7 +17,7 @@ const Records = [
     },
     {
         id: 2,
-        name: 'Li Jiang',
+        name: 'ALi Jiang',
         office: 'C109',
         location: 'Shanghai',
         officephone: '1093331552',
@@ -25,7 +25,7 @@ const Records = [
     },
     {
         id: 3,
-        name: 'Kum Jo',
+        name: 'BKum Jo',
         office: 'C113',
         location: 'Shanghai',
         officephone: '1013331552',
