@@ -39,15 +39,14 @@ const colDef = [
       {
         key: 'cellphone',
         // subcol: [
-          // { key: 'personalcell' },
-          // { key: 'homecell' },
+        // { key: 'personalcell' },
+        // { key: 'homecell' },
         // ]
       },
     ]
   },
 ];
 const DEPTH = 2; //todo
-const actualCols = ['_select', 'id', 'name', 'location', 'office', 'officephone', 'cellphone']
 
 // const Table = function({children}) {
 //   return (
@@ -74,50 +73,67 @@ class App extends Component {
       lan: this.state.lan === 'zh' ? 'en' : 'zh'
     })
   }
+  cellDbclick = (index, record, colkey) => {
+    this.setCol(index, 'edit', colkey)
+  }
+  inputBlur = (index, record, colkey) => { //todo, focus
+    this.setCol(index, 'edit', null)
+  }
+  inputChange = (e, index, colkey) => { //todo, focus
+    console.log(e.target);
+    this.setCol(index, colkey, e.target && e.target.value)
+  }
+  setCol = (index, key, val) => {
+    this.setState(state => {
+      state.records.splice(index, 1, {
+        ...state.records[index],
+        [key]: val,
+      })
+      return {
+        records: state.records,
+      }
+    })
+  }
 
-  renderCols(coldef, depth=1) {
+  renderCols(coldef, depth = 1) {
     const { records } = this.state;
     const locale = Locales[this.state.lan];
-    const titleHeight =30;
+    const titleHeight = 30;
     return (
       <div className='cols'>
         { coldef.map(col => {
           if (col.subcol) {
             return (
               <div key={ col.key }>
-                <div className="col-header" style={{height:`${titleHeight}px`}}>{ locale[col.key] }</div>
-                { this.renderCols(col.subcol, depth+1) }
+                <div className="col-header" style={ { height: `${titleHeight}px` } }>{ locale[col.key] }</div>
+                { this.renderCols(col.subcol, depth + 1) }
               </div>
             )
           } else {
             return ( //title and cells
-              <>
-                <div className='col' key={ col.key }>
-                  <div className="col-header" style={{height:`${depth===DEPTH? titleHeight : titleHeight*(DEPTH-depth+1)}px`}}>{ locale[col.key] }</div>
-                  {
-                    records && records.length > 0 && records.map(record => (
-                      <div className='cell'>
+              <div className='col' key={ col.key }>
+                <div className="col-header" style={ { height: `${depth === DEPTH ? titleHeight : titleHeight * (DEPTH - depth + 1)}px` } }>{ locale[col.key] }</div>
+                {
+                  records && records.length > 0 && records.map((record, index) => (
+                    record.edit === col.key ? //editing
+                      <input
+                        autoFocus
+                        value={ record[col.key] }
+                        onBlur={ () => this.inputBlur(index, record, col.key) }
+                        onChange={ (e) => this.inputChange(e, index, col.key) }
+                        key={record.id}
+                      /> :
+                      <div className='cell' onDoubleClick={ () => this.cellDbclick(index, record, col.key) } key={record.id}>
                         { record[col.key] }
                       </div>
-                    ))
-                  }
+                  ))
+                }
 
-                </div>
-              </>
+              </div>
             )
           }
         }) }
       </div>
-    )
-  }
-  renderRows() {
-    const { records } = this.state;
-    return (
-      records && records.length > 0 && records.map(record => (
-        <div className='row'>
-          { actualCols.map(col => <div className='col'>{ record[col] }</div>) }
-        </div>
-      ))
     )
   }
   render() {

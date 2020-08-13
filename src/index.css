@@ -38,3 +38,7 @@ code {
   justify-content: space-around;
   align-items: center;
 }
+input {
+  height: 26px;
+  width: 100%;
+}
