@@ -1,24 +1,27 @@
 body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+        "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+        "Helvetica Neue", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+    font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+        monospace;
 }
 
 .cols {
-  display: flex;
-  justify-content: space-around;
-  /* align-items: center; */
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
 }
 .bookwrap {
-  width: 90%;
+    width: 90%;
+    margin: auto;
+    min-width: 900px;
+    max-width: 1100px;
 }
 
 .col {
@@ -26,19 +29,35 @@ code {
 }
 
 .col-header {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
 }
 .cell {
-  border: 1px solid gray;
-  width: 100%;
-  height: 30px;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
+    border: 1px solid gray;
+    min-width: 100px;
+    max-width: 150px;
+    height: 50px;
+    line-height: 50px;
+    padding: 0 10px;
+    text-align: center;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 input {
-  height: 26px;
-  width: 100%;
+    height: 46px;
+    /* width: 100%; */
+    min-width: 100px;
+    max-width: 150px;
+    font-size: 15px;
+}
+.btns {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.header-sort {
+    cursor: pointer;
 }

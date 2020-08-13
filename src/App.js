@@ -7,6 +7,8 @@ class App extends Component {
     records: [],
     lan: 'en',
     sortAscend: false,
+    selectAll: false,
+    deleted: [],
   }
   componentDidMount() {
     getRecords().then(res => {
@@ -22,20 +24,37 @@ class App extends Component {
     })
   }
   cellDbclick = (index, record, colkey) => {
-    this.setCol(index, 'edit', colkey)
+    if (colkey === 'cellphone' || !record.id) {//cellphone or new added row
+      this.setKey(index, 'edit', colkey)
+    }
   }
   inputBlur = (index, record, colkey) => {
-    this.setCol(index, 'edit', null)
+    this.setKey(index, 'edit', null)
   }
   inputChange = (e, index, colkey) => {
     // console.log(e.target);
-    this.setCol(index, colkey, e.target && e.target.value)
-    this.setCol(index, 'flag', 'dirty') //todo merge
+    this.setKey(index, colkey, e.target && e.target.value)
+    this.setKey(index, 'flag', 'dirty') //todo merge
   }
   update = () => {
-    let arr = this.state.records.filter(rec => rec.flag === 'dirty').map(rec => rec.id);
+    const { records, deleted } = this.state;
+    let arr = records.filter(rec => rec.flag === 'dirty')
+      .concat(deleted)
+      .map(rec => rec.id);
     if (arr && arr.length) {
-      alert('modified: ' + arr);
+      alert('ids: ' + arr);
+    } else {
+      alert('Nothing Changed')
+    }
+  }
+  headerClick = (key) => {
+    if (key === '_select') {
+      this.setKeyAll(key, !this.state.selectAll);
+      this.setState({
+        selectAll: !this.state.selectAll,
+      })
+    } else {
+      this.sort(key);
     }
   }
   sort = (key) => {
@@ -43,21 +62,30 @@ class App extends Component {
     this.setState(state => {
       state.records.sort((a, b) => {
         if (a[key] < b[key]) { // return 1 means swap
-          return state.sortAscend? 1: -1;
+          return state.sortAscend ? 1 : -1;
         }
         if (a[key] > b[key]) {
-          return state.sortAscend? -1: 1;
+          return state.sortAscend ? -1 : 1;
         }
         return 0
       });
-      console.log('sorted records', state.records);
       return {
         records: state.records,
         sortAscend: !state.sortAscend,
       }
     })
   }
-  setCol = (index, key, val) => { // {}
+  onDelete = () => {
+    this.setState(state => {
+      return {
+        records: state.records.filter(rec => !rec._select),
+        deleted: state.records.filter(rec => rec._select),
+      }
+    })
+  }
+
+  // statehelper
+  setKey = (index, key, val) => { // {}
     this.setState(state => {
       state.records.splice(index, 1, {
         ...state.records[index],
@@ -68,7 +96,18 @@ class App extends Component {
       }
     })
   }
+  setKeyAll = (key, val) => { // {}
+    this.setState(state => {
+      return {
+        records: state.records.map(rec => ({
+          ...rec,
+          [key]: val,
+        })),
+      }
+    })
+  }
 
+  // render
   renderCols(coldef, depth = 1) {
     const { records } = this.state;
     const locale = Locales[this.state.lan];
@@ -87,26 +126,11 @@ class App extends Component {
             return (
               <div className='col' key={ col.key }>
                 <div // header with sort
-                  className="col-header"
+                  className="col-header header-sort"
                   style={ { height: `${depth === DEPTH ? titleHeight : titleHeight * (DEPTH - depth + 1)}px` } }
-                  onClick={ () => this.sort(col.key) }
+                  onClick={ () => this.headerClick(col.key) }
                 >{ locale[col.key] }</div>
-                {
-                  // col cells
-                  records && records.length > 0 && records.map((record, index) => (
-                    record.edit === col.key ? //editing
-                      <input
-                        autoFocus
-                        value={ record[col.key] }
-                        onBlur={ () => this.inputBlur(index, record, col.key) }
-                        onChange={ (e) => this.inputChange(e, index, col.key) }
-                        key={ record.id }
-                      /> :
-                      <div className='cell' onDoubleClick={ () => this.cellDbclick(index, record, col.key) } key={ record.id }>
-                        { record[col.key] }
-                      </div>
-                  ))
-                }
+                { this.renderColCells(records, col.key) }
               </div>
             )
           }
@@ -114,15 +138,49 @@ class App extends Component {
       </div>
     )
   }
+  renderColCells(records, key) {
+    return (
+      records && records.length > 0 && records.map((record, index) => {
+        if (key === '_select') {
+          return (
+            <div className='cell' onClick={ () => this.setKey(index, key, !record[key]) } key={ record.id }>
+              { record[key] ? '√' : '' }
+            </div>
+          )
+        }
+        if (record.edit === key) {
+          return (
+            <input
+              autoFocus
+              value={ record[key] }
+              onBlur={ () => this.inputBlur(index, record, key) }
+              onChange={ (e) => this.inputChange(e, index, key) }
+              key={ record.id }
+            />
+          )
+        }
+        return (
+          <div className='cell'
+            onDoubleClick={ () => this.cellDbclick(index, record, key) }
+            key={ record.id }
+          > { record[key] }</div>
+        )
+      })
+    )
+  }
   render() {
     const locale = Locales[this.state.lan];
     return (
       <div className='bookwrap'>
-        { this.renderCols(colDef) }
         <button onClick={ this.toggleLan }>中/EN</button>
-        <button onClick={ this.onDelete }>{ locale.delete }</button>
-        <button onClick={ this.update }>{ locale.update }</button>
-        <button onClick={ this.add }>{ locale.add }</button>
+        { this.renderCols(colDef) }
+        <div className='btns'>
+          <button onClick={ this.onDelete }>{ locale.delete }</button>
+          <div>
+            <button onClick={ this.update }>{ locale.update }</button>
+            <button onClick={ this.add }>{ locale.add }</button>
+          </div>
+        </div>
       </div>
     )
   }
@@ -130,7 +188,7 @@ class App extends Component {
 
 const Locales = {
   en: {
-    _select: '[select]',
+    _select: '[Sel]',
     id: 'ID',
     name: 'Name',
     location: 'Location',
@@ -146,7 +204,7 @@ const Locales = {
     add: 'Add',
   },
   zh: {
-    _select: '[选择]',
+    _select: '[全选]',
     id: '编号',
     name: '姓名',
     office: '办公室',
