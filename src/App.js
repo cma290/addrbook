@@ -24,7 +24,7 @@ class App extends Component {
     })
   }
   cellDbclick = (index, record, colkey) => {
-    if (colkey === 'cellphone' || !record.id) {//cellphone or new added row
+    if (colkey === 'cellphone' || (!record.id && colkey !== 'id')) {//cellphone or new added row
       this.setKey(index, 'edit', colkey)
     }
   }
@@ -38,14 +38,10 @@ class App extends Component {
   }
   update = () => {
     const { records, deleted } = this.state;
-    let arr = records.filter(rec => rec.flag === 'dirty')
-      .concat(deleted)
-      .map(rec => rec.id);
-    if (arr && arr.length) {
-      alert('ids: ' + arr);
-    } else {
-      alert('Nothing Changed')
-    }
+    let arr = records.filter(rec => rec.flag === 'dirty').map(rec => rec.id);
+    let del = deleted.map(rec => rec.id);
+    let added = records.filter(rec => !rec.id);
+    alert(`updated id: ${arr} \n deleted id: ${del} \n added: ${added.length} new record`)
   }
   headerClick = (key) => {
     if (key === '_select') {
@@ -79,13 +75,27 @@ class App extends Component {
     this.setState(state => {
       return {
         records: state.records.filter(rec => !rec._select),
-        deleted: state.records.filter(rec => rec._select),
+        deleted: state.records.filter(rec => rec._select && rec.id),
+      }
+    })
+  }
+  add = () => {
+    this.setState(state => {
+      return {
+        records: [...state.records, {
+          name: '',
+          location: '',
+          office: '',
+          cellphone: '',
+          officephone: '',
+        }],
+
       }
     })
   }
 
   // statehelper
-  setKey = (index, key, val) => { // {}
+  setKey = (index, key, val) => {
     this.setState(state => {
       state.records.splice(index, 1, {
         ...state.records[index],
@@ -96,7 +106,7 @@ class App extends Component {
       }
     })
   }
-  setKeyAll = (key, val) => { // {}
+  setKeyAll = (key, val) => {
     this.setState(state => {
       return {
         records: state.records.map(rec => ({
