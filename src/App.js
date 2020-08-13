@@ -24,7 +24,7 @@ class App extends Component {
     })
   }
   cellDbclick = (index, record, colkey) => {
-    if (colkey === 'cellphone' || (!record.id && colkey !== 'id')) {//cellphone or new added row
+    if (colkey === 'cellphone' || (!record.id && colkey !== 'id')) { //cellphone or new added row
       this.setKey(index, 'edit', colkey)
     }
   }
@@ -38,9 +38,10 @@ class App extends Component {
   }
   update = () => {
     const { records, deleted } = this.state;
-    let arr = records.filter(rec => rec.flag === 'dirty').map(rec => rec.id);
+    let arr = records.filter(rec => rec.flag === 'dirty' && rec.id).map(rec => rec.id);
     let del = deleted.map(rec => rec.id);
     let added = records.filter(rec => !rec.id);
+    console.log(arr, del, added);
     alert(`updated id: ${arr} \n deleted id: ${del} \n added: ${added.length} new record`)
   }
   headerClick = (key) => {
@@ -203,7 +204,7 @@ const Locales = {
     name: 'Name',
     location: 'Location',
     office: 'Office',
-    phone: 'Phone', //
+    phone: 'Phone',
     cellphone: 'Cell',
     officephone: 'Office',
     personalcell: 'Personal',
@@ -218,7 +219,7 @@ const Locales = {
     id: '编号',
     name: '姓名',
     office: '办公室',
-    phone: '电话', //
+    phone: '电话',
     cellphone: '手机',
     officephone: '办公',
 
@@ -228,8 +229,9 @@ const Locales = {
   }
 }
 
+const DEPTH = 2; // col title nest depth
 const colDef = [
-  { key: '_select' }, //
+  { key: '_select' },
   { key: 'id' },
   { key: 'name' },
   { key: 'location' },
@@ -248,14 +250,5 @@ const colDef = [
     ]
   },
 ];
-const DEPTH = 2; //
-
-// const Table = function({children}) {
-//   return (
-//     <div className='tablewrap'>
-//       {children}
-//     </div>
-//   )
-// }
 
 export default App;
