@@ -4,8 +4,10 @@ import { getRecords } from './ajax';
 
 const Locales = {
   en: {
+    _select: '[select]',
     id: 'ID',
     name: 'Name',
+    location: 'Location',
     office: 'Office',
     phone: 'Phone', //
     cellphone: 'Cell',
@@ -14,6 +16,7 @@ const Locales = {
     homecell: 'Home',
   },
   zh: {
+    _select: '[选择]',
     id: '编号',
     name: '姓名',
     office: '办公室',
@@ -36,15 +39,23 @@ const colDef = [
       {
         key: 'cellphone',
         // subcol: [
-        //   { key: 'personalcell' },
-        //   { key: 'homecell' },
+          // { key: 'personalcell' },
+          // { key: 'homecell' },
         // ]
       },
     ]
   },
 ];
+const DEPTH = 2; //todo
 const actualCols = ['_select', 'id', 'name', 'location', 'office', 'officephone', 'cellphone']
 
+// const Table = function({children}) {
+//   return (
+//     <div className='tablewrap'>
+//       {children}
+//     </div>
+//   )
+// }
 class App extends Component {
   state = {
     records: [],
@@ -64,23 +75,35 @@ class App extends Component {
     })
   }
 
-  renderColTitles(coldef) {
+  renderCols(coldef, depth=1) {
+    const { records } = this.state;
     const locale = Locales[this.state.lan];
+    const titleHeight =30;
     return (
       <div className='cols'>
         { coldef.map(col => {
           if (col.subcol) {
             return (
               <div key={ col.key }>
-                <div className="col">
-                  { locale[col.key] }
-                </div>
-                { this.renderColTitles(col.subcol) }
+                <div className="col-header" style={{height:`${titleHeight}px`}}>{ locale[col.key] }</div>
+                { this.renderCols(col.subcol, depth+1) }
               </div>
             )
           } else {
-            return (
-              <div className='col' key={ col.key }>{ locale[col.key] }</div>
+            return ( //title and cells
+              <>
+                <div className='col' key={ col.key }>
+                  <div className="col-header" style={{height:`${depth===DEPTH? titleHeight : titleHeight*(DEPTH-depth+1)}px`}}>{ locale[col.key] }</div>
+                  {
+                    records && records.length > 0 && records.map(record => (
+                      <div className='cell'>
+                        { record[col.key] }
+                      </div>
+                    ))
+                  }
+
+                </div>
+              </>
             )
           }
         }) }
@@ -98,11 +121,9 @@ class App extends Component {
     )
   }
   render() {
-    const { records } = this.state;
     return (
       <div className='bookwrap'>
-        { this.renderColTitles(colDef) }
-        { this.renderRows() }
+        { this.renderCols(colDef) }
         <button onClick={ this.toggleLan }>中/EN</button>
       </div>
     )
