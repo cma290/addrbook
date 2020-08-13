@@ -218,6 +218,7 @@ const Locales = {
     _select: '[全选]',
     id: '编号',
     name: '姓名',
+    location: '城市',
     office: '办公室',
     phone: '电话',
     cellphone: '手机',
